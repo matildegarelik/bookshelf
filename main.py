@@ -31,6 +31,18 @@ def home():
 def search():
     return render_template("search.html")
 
+@app.route('/book')
+def book():
+    return render_template("book.html")
+
+@app.route('/user')
+def user():
+    return render_template("user.html")
+
+@app.route('/bookshelf')
+def bookshelf():
+    return render_template("bookshelf.html")
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == "POST":

@@ -27,7 +27,7 @@ function getBooks(searchText){
                 if (book.volumeInfo.authors){
                     output+= `${book.volumeInfo.authors}`
                 }
-                output+=`</p></div></div>`;
+                output+=`</p><button onclick=bookSelected("${book.id}")>Select</button></div></div>`;
             });
             output += `</div><br><div id="btn-more" style="text-align: center;"><button class="btn btn-primary" onclick="loadMore()">Load more</button></div><br>`
             $('#books').html(output);
@@ -59,7 +59,7 @@ function loadMore(){
                 if (book.volumeInfo.authors){
                     output+= `${book.volumeInfo.authors}`
                 }
-                output+=`</p></div></div>`;
+                output+=`</p><button onclick=bookSelected("${book.id}")>Select</button></div></div>`;
             });
             $('#btn-more').remove();
             output += `</div><br><div id="btn-more" style="text-align: center;"><button class="btn btn-primary" onclick="loadMore()">Load more</button></div><br>`
@@ -72,50 +72,51 @@ function loadMore(){
     
 }
 
-/*function bookSelected(id){
-    sessionStorage.setItem("movieId", id);
-    window.location = 'movie.html';
+function bookSelected(id){
+    sessionStorage.setItem("bookId", id);
+    window.location = 'book';
     return false;
 }
 
-function getMovie(){
-    let movieId = sessionStorage.getItem('movieId');
-    axios.get('http://www.omdbapi.com/?apikey=74c31c16&i='+movieId)
+function getBook(){
+    let bookId = sessionStorage.getItem('bookId');
+    axios.get('https://www.googleapis.com/books/v1/volumes/'+bookId)
         .then((response) => {
             console.log(response);
-            let movie= response.data;
-            let output =`
-                <div class="row">
-                    <div class="col-md-4">
-                        <img src="${movie.Poster}" class="thumbnail">
-                    </div>
-                    <div class="col-md-8">
-                        <h2>${movie.Title}</h2>
-                        <ul class="list-group">
-                            <li class="list-group-item"><strong>Genre:</strong> ${movie.Genre}</li>
-                            <li class="list-group-item"><strong>Released:</strong> ${movie.Released}</li>
-                            <li class="list-group-item"><strong>Rated:</strong> ${movie.Rated}</li>
-                            <li class="list-group-item"><strong>IMDB Rating:</strong> ${movie.imdbRating}</li>
-                            <li class="list-group-item"><strong>Director:</strong> ${movie.Director}</li>
-                            <li class="list-group-item"><strong>Writer:</strong> ${movie.Writer}</li>
-                            <li class="list-group-item"><strong>Actors:</strong> ${movie.Actors}</li>
-                        </ul>
-                    </div>
-                </div>
+            let book= response.data;
+            console.log(book);
+            let output =`<div class="row"><div class="col-md-4">`;
+            if (book.volumeInfo.imageLinks){
+                output+=`<img src="${book.volumeInfo.imageLinks.thumbnail}">`;
+            }else{
+                output+=`<img src="https://www.walterbrueggemann.com/wp-content/uploads/1971/01/Book-Cover-Unavailable.png" width="256px" height="412px">`;
+            }
+            output+=`</div>
+                <div class="col-md-8">
+                    <h2>${book.volumeInfo.title}</h2>
+                    <h3>${book.volumeInfo.subtitle}</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Authors:</strong> ${book.volumeInfo.authors}</li>
+                        <li class="list-group-item"><strong>Published date:</strong>${book.volumeInfo.publishedDate}</li>
+                        <li class="list-group-item"><strong>Publisher:</strong> ${book.volumeInfo.publisher}</li>
+                        <li class="list-group-item"><strong>Language:</strong> ${book.volumeInfo.language}</li>
+                        <li class="list-group-item"><strong>Pages (printed):</strong> ${book.volumeInfo.printedPageCount}</li>
+                    </ul>
+                </div></div>
                 <div class="row">
                     <div class="well">
-                        <h3>Plot</h3>
-                        ${movie.Plot}
+                        <h3>Description</h3>
+                        ${book.volumeInfo.description}
                         <hr>
-                        <a href="http://imdb.com/title/${movie.imdbID}" target="_blank" class="btn btn-primary">View IMDB</a>
-                        <a href="index.html" class="btn btn-default">Go Back To Search</a>
+                        <a href="https://books.google.com.ar/books/?id=${bookId}" target="_blank" class="btn btn-primary">View in Google Books</a>
+                        <a href="search" class="btn btn-default">Go Back To Search</a>
                     </div>
                 </div>
             `;
-            $('#movie').html(output);
+            $('#book').html(output);
 
         })
         .catch((err) => {
             console.log(err);
         })
-}*/
+}

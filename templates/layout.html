@@ -9,6 +9,38 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">BookshelfIndex</a>
+            </div>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/search">Search books</a>
+            </div>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/bookshelf">My bookshelf</a>
+            </div>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/user">User Info</a>
+            </div>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/login">Login</a>
+            </div>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/logout">Logout</a>
+            </div>
+        </div>
+        <!--<div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">BookshelfIndex</a>
+            </div>
+        </div>
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">BookshelfIndex</a>
+            </div>
+        </div>-->
+    </nav>
     {% block content %}
     {% endblock %}
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"
@@ -16,5 +48,7 @@
     crossorigin="anonymous"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="static/main.js"></script>
+    {% block more_script %}
+    {% endblock %}
 </body>
 </html>

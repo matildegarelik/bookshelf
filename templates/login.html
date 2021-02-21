@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Log in</h1>
+<form method="POST">
+    <label for="username">Username</label><br>
+    <input type="text" id="username" name="nm" required><br><br>
+    <label for="password">Password</label><br>
+    <input type="password" id="password" name="pw" required><br><br>
+    <input type="submit" value="submit">
+</form>
+<p>Return to <a href="/">index</a></p>
+{% endblock %}

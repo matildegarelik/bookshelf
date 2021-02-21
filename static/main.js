@@ -112,11 +112,17 @@ function getBook(){
                         <a href="search" class="btn btn-default">Go Back To Search</a>
                     </div>
                 </div>
+                <div class="container" id="select_book">
+                    <button type="btn btn-info" onclick="addBook(${bookId})">Add to my bookshelf</button>
+                </div>
             `;
             $('#book').html(output);
-
         })
         .catch((err) => {
             console.log(err);
         })
+}
+
+function addBook(id){
+    //Create a pop up div with form that adds element book to database
 }

@@ -1,3 +1,7 @@
 button .btn-primary{
     color:red;
 }
+html, body{
+    margin: 20px;
+    padding: 15px;
+}

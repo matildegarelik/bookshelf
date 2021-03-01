@@ -79,6 +79,8 @@ function bookSelected(id){
 }
 
 function getBook(){
+    var my_books = "{{ my_books|tojson|safe }}";
+    console.log(my_books);
     let bookId = sessionStorage.getItem('bookId');
     axios.get('https://www.googleapis.com/books/v1/volumes/'+bookId)
         .then((response) => {
@@ -109,11 +111,42 @@ function getBook(){
                         ${book.volumeInfo.description}
                         <hr>
                         <a href="https://books.google.com.ar/books/?id=${bookId}" target="_blank" class="btn btn-primary">View in Google Books</a>
-                        <a href="search" class="btn btn-default">Go Back To Search</a>
+                        <a href="search" class="btn btn-default">Go Back To Search</a><br><br>
                     </div>
-                </div>
-                <div class="container" id="select_book">
-                    <button type="btn btn-info" onclick="addBook(${bookId})">Add to my bookshelf</button>
+                </div>`;
+                var m = 0;
+                for (b in my_books){
+                    if (b.gb_id == bookId){
+                        m = 1;
+                    }
+                }
+                if (m>0){
+                    output +=`<button class="btn btn-success" disabled>&check Already in my bookshelf</button>`;
+                }else{
+                    output +=`<button class="btn btn-info" onclick="togglePopUp()">Add to my bookshelf</button>`;
+                };
+                output +=`
+                <div class="container">
+                    <div class="popup" id="popup-1">
+                        <div class="overlay"></div>
+                        <div class="content">
+                            <div class="close-btn" onclick="togglePopUp()">&times;</div>
+                            <h1>Add to personal boookshelf</h1>
+                            <form method="POST">
+                                <label>Google books ID: </label>
+                                <input value="${book.id}" name="gb_id" readonly><br>
+                                <label>Industry Identifier Type: </label>
+                                <input value="${book.volumeInfo.industryIdentifiers[0].type}" name="iit" readonly><br>
+                                <label>Industry Identifier's Value: </label>
+                                <input value="${book.volumeInfo.industryIdentifiers[0].identifier}" name="iiv" readonly><br>
+                                <label>Category: </label>
+                                <input type="text" required name="category"><br>
+                                <label>State: </label>
+                                <input type="text" value="Unread" name="state" required><br>
+                                <input type="submit" class="btn btn-success"  value="ADD">
+                            </form>
+                        </div>
+                    </div>
                 </div>
             `;
             $('#book').html(output);
@@ -123,6 +156,6 @@ function getBook(){
         })
 }
 
-function addBook(id){
-    //Create a pop up div with form that adds element book to database
+function togglePopUp(){
+    document.getElementById("popup-1").classList.toggle("active");
 }

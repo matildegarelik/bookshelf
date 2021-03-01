@@ -13,14 +13,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
 
 db = SQLAlchemy(app)
 
-class Usuarios(db.Model):
+class User(db.Model):
     _id =  db.Column("id", db.Integer, primary_key=True)
     first_name = db.Column(db.String(100))
     last_name= db.Column(db.String(100))
     username = db.Column(db.String(100))
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
-    estantes = relationship("Estantes")
+    books = db.relationship("Book", backref='user')
 
     def __init__(self, first_name, last_name, username, email, password):
         self.first_name = first_name
@@ -29,28 +29,24 @@ class Usuarios(db.Model):
         self.email = email
         self.password = password 
 
-class Libros (db.Model):
+
+class Book(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
-    gb_id= db.Column(db.String(100))
-    isbn= db.Column(db.String(100))
-    estantes = relationship("Estantes")
+    gb_id= db.Column(db.String(100)) #Google Books ID
+    ii_type= db.Column(db.String(100)) #Industry identifier type
+    ii_value= db.Column(db.String(100)) #Industry identifier value
+    state = db.Column(db.String(100))
+    category = db.Column(db.String(100))
+    user_id = db.Column (db.Integer, db.ForeignKey('user.id')) #Busca tabla en la base de datos, no clase de python, por eso es minuscula
     
-    def __init__(self, gb_id, isbn, user_id):
+    def __init__(self, gb_id, ii_type, ii_value, state, category, user_id):
         self.gb_id = gb_id
-        self.isbn = isbn
-
-class Estantes (db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
-    user_id= db.Column(db.Integer, db.ForeignKey('Usuarios.id'))
-    book_id= db.Column(db.Integer, db.ForeignKey('Libros.id'))
-    estado= db.Column(db.String(100))
-    categoria= db.Column(db.String(100))
-
-    def __init__(self, user_id, book_id, estado, categoria):   
+        self.ii_type = ii_type
+        self.ii_value = ii_value
+        self.state = state
+        self.category = category
         self.user_id = user_id
-        self.book_id = book_id
-        self.estado = estado
-        self.categoria = categoria
+
 
 @app.route('/')
 def home():
@@ -60,17 +56,29 @@ def home():
 def search():
     return render_template("search.html")
 
-@app.route('/book')
+@app.route('/book', methods=['GET', 'POST'])
 def book():
-    return render_template("book.html")
+    user = User.query.filter_by(username=session["user"]).first()._id
+    if request.method == "POST":
+        new_book = Book(gb_id=request.form["gb_id"], 
+            ii_type= request.form["iit"], 
+            ii_value=request.form["iiv"], 
+            state=request.form["state"], 
+            category=request.form["category"], 
+            user_id=user)
+        db.session.add(new_book)
+        db.session.commit()
+        return render_template("book.html", my_books=Book.query.filter_by(user_id=user))
+    return render_template("book.html", my_books=Book.query.filter_by(user_id=user))
 
 @app.route('/user')
 def user():
-    return render_template("user.html")
+    return render_template("user.html", user=User.query.filter_by(username=session["user"]).first())
 
 @app.route('/bookshelf')
 def bookshelf():
-    return render_template("bookshelf.html")
+    user = User.query.filter_by(username=session["user"]).first()._id
+    return render_template("bookshelf.html", user=session["user"], user_books=Book.query.filter_by(user_id=user))
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -80,7 +88,7 @@ def login():
         password = request.form["pw"]
         session["user"] = username
 
-        found_user= Usuarios.query.filter_by(username=username).first()
+        found_user= User.query.filter_by(username=username).first()
         
         if found_user:
             if found_user.password == password:
@@ -109,15 +117,15 @@ def signup():
         username = request.form["nm"]
         password = request.form["pw"]
 
-        if not Usuarios.query.filter_by(username=username):
-            new_user= Usuarios(first_name, last_name, username, email, password)
-            db.session.add(new_user)
-            db.session.commit()
-            session["user"] = username
-            return redirect(url_for("user"))
-        else:
-            flash("Username unavaiable")
-            return redirect(url_for("signup"))
+        #if not User.query.filter_by(username=username):
+        new_user= User(first_name, last_name, username, email, password)
+        db.session.add(new_user)
+        db.session.commit()
+        session["user"] = username
+        return redirect(url_for("user"))
+        #else:
+        #    flash("Username unavaiable")
+        #    return redirect(url_for("signup"))
     else:
         return render_template("signup.html")
 

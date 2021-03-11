@@ -70,15 +70,16 @@ def home():
 def search():
     return render_template("search.html")
 
-@app.route('/book', methods=['GET', 'POST'])
-def book():
+@app.route('/book_<book_id>', methods=['GET', 'POST'])
+def book(book_id):
     user = User.query.filter_by(username=session["user"]).first()._id
-    user_books = Book.query.filter_by(user_id=user)
-    my_books =  []
-    for b in user_books:
-        my_books.append(b.to_dict())
 
-    print(my_books)
+    in_bf = "NO" #Check if the book is in the users bookshelf
+    if Book.query.filter_by(user_id=user, gb_id=book_id).count() > 0:
+        in_bf = "SI"
+    
+    times_saved = Book.query.filter_by(gb_id=book_id).count()
+
     if request.method == "POST":
         new_book = Book(gb_id=request.form["gb_id"], 
             ii_type= request.form["iit"], 
@@ -88,8 +89,8 @@ def book():
             user_id=user)
         db.session.add(new_book)
         db.session.commit()
-        return render_template("book.html", my_books=my_books)
-    return render_template("book.html", my_books=my_books)
+        return render_template("book.html", in_bf=in_bf, times_saved= times_saved)
+    return render_template("book.html", in_bf=in_bf, times_saved=times_saved)
 
 @app.route('/user')
 def user():

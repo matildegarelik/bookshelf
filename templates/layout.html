@@ -30,6 +30,13 @@
             </div>
         </div>
     </nav>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     {% block content %}
     {% endblock %}
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"

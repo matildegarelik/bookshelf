@@ -1,19 +1,30 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import relationship
+from flask_migrate import Migrate
 
 
 app = Flask(__name__)
 app.secret_key = "12345678" 
-app.permanent_session_lifetime = timedelta(minutes=5) 
+app.permanent_session_lifetime = timedelta(minutes=5)
 
-app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///books.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
+PSQL_USER = 'postgres'
+PSQL_PASSWORD = 'matilde'
+PSQL_NETLOC = 'localhost'
+PSQL_PORT = '5432'
+PSQL_DB_NAME = 'books'
+PSQL_URL = f"postgresql://{PSQL_USER}:{PSQL_PASSWORD}@{PSQL_NETLOC}:{PSQL_PORT}/{PSQL_DB_NAME}"
+app.config['SQLALCHEMY_DATABASE_URI']= PSQL_URL
+#app.config['SQLALCHEMY_TRACK_MODIFICATIONS']= False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
-class User(db.Model):
+class User(db.Model, SerializerMixin):
+    __tablename__='user'
+
     _id =  db.Column("id", db.Integer, primary_key=True)
     first_name = db.Column(db.String(100))
     last_name= db.Column(db.String(100))
@@ -30,7 +41,7 @@ class User(db.Model):
         self.password = password 
 
 
-class Book(db.Model):
+class Book(db.Model, SerializerMixin):
     _id = db.Column("id", db.Integer, primary_key=True)
     gb_id= db.Column(db.String(100)) #Google Books ID
     ii_type= db.Column(db.String(100)) #Industry identifier type
@@ -50,7 +61,10 @@ class Book(db.Model):
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    session_status = "inactive"
+    if session.get("user"):
+        session_status = "active"
+    return render_template("index.html", session=session_status)
 
 @app.route('/search')
 def search():
@@ -59,6 +73,12 @@ def search():
 @app.route('/book', methods=['GET', 'POST'])
 def book():
     user = User.query.filter_by(username=session["user"]).first()._id
+    user_books = Book.query.filter_by(user_id=user)
+    my_books =  []
+    for b in user_books:
+        my_books.append(b.to_dict())
+
+    print(my_books)
     if request.method == "POST":
         new_book = Book(gb_id=request.form["gb_id"], 
             ii_type= request.form["iit"], 
@@ -68,8 +88,8 @@ def book():
             user_id=user)
         db.session.add(new_book)
         db.session.commit()
-        return render_template("book.html", my_books=Book.query.filter_by(user_id=user))
-    return render_template("book.html", my_books=Book.query.filter_by(user_id=user))
+        return render_template("book.html", my_books=my_books)
+    return render_template("book.html", my_books=my_books)
 
 @app.route('/user')
 def user():
@@ -78,7 +98,18 @@ def user():
 @app.route('/bookshelf')
 def bookshelf():
     user = User.query.filter_by(username=session["user"]).first()._id
-    return render_template("bookshelf.html", user=session["user"], user_books=Book.query.filter_by(user_id=user))
+    user_books = Book.query.filter_by(user_id=user)
+    print(user_books)
+
+    categories = []
+    states= []
+    for book in user_books:
+        if not book.category in categories:
+            categories.append(book.category)
+        if not book.state in states:
+            states.append(book.state)
+
+    return render_template("bookshelf.html", user=session["user"], user_books=user_books, categories=categories, states= states)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -86,20 +117,20 @@ def login():
         session.permanent = True
         username = request.form["nm"]
         password = request.form["pw"]
-        session["user"] = username
 
         found_user= User.query.filter_by(username=username).first()
         
         if found_user:
             if found_user.password == password:
+                session["user"] = username
                 flash('Login successfull!')
                 return redirect(url_for("user"))
             else:
                 flash('Incorrect password')
-                return redirect(url_for("login"))
+                return render_template("login.html")
         else:
             flash('User not found')
-            return redirect(url_for("login"))
+            return render_template("login.html")
     
     else:
         if "user" in session:
@@ -117,15 +148,17 @@ def signup():
         username = request.form["nm"]
         password = request.form["pw"]
 
-        #if not User.query.filter_by(username=username):
-        new_user= User(first_name, last_name, username, email, password)
-        db.session.add(new_user)
-        db.session.commit()
-        session["user"] = username
-        return redirect(url_for("user"))
-        #else:
-        #    flash("Username unavaiable")
-        #    return redirect(url_for("signup"))
+        if User.query.filter_by(username=username).count() > 0:
+            flash("Username unavaiable")
+            return render_template("signup.html")
+        else:
+            new_user= User(first_name, last_name, username, email, password)
+            db.session.add(new_user)
+            db.session.commit()
+            session["user"] = username
+            flash("New account created successfully!")
+            return redirect(url_for("user"))
+        
     else:
         return render_template("signup.html")
 

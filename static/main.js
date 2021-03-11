@@ -79,7 +79,7 @@ function bookSelected(id){
 }
 
 function getBook(){
-    var my_books = "{{ my_books|tojson|safe }}";
+    var my_books = `{{my_books}}`;
     console.log(my_books);
     let bookId = sessionStorage.getItem('bookId');
     axios.get('https://www.googleapis.com/books/v1/volumes/'+bookId)

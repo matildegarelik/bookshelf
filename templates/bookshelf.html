@@ -1,7 +1,20 @@
 {% extends "layout.html" %}
 
+
 {% block content %}
 <h1>BOOKSHELF OF {{user}}</h1>
+
+<form>
+    <label for="filter_by">Filter by: </label>
+    <div class="row" id="filter1">
+        <input type="checkbox" class="checkbox col-md-1" id="filter_category" name="filters[]" value="category">
+        <label for="filter_category" >Category</label>
+    </div>
+    <div class="row" id="filter2">
+        <input type="checkbox" class="checkbox col-md-1" id="filter_state" name="filters[]" value="state">
+        <label for="filter_state">State</label>
+    </div>
+</form>
 
 <ul>
     {% for book in user_books %}
@@ -11,4 +24,36 @@
 
 
 
+{% endblock %}
+
+{% block more_script %}
+<script>
+$(document).ready(filter_user_books)
+$('input.checkbox').change(function(){
+    if ($('#filter_category').checked){
+        console.log("hello")}
+})
+
+function filter_user_books(){
+    if ($('#filter_category').checked){
+        console.log("hello")
+        $('#filter1').append(`
+        <select name="category">
+            {% for category in categories %}
+                <option>{{category}}</option>
+            {% endfor %}
+        </select>
+        `)
+    }
+    if ($('#filter_state').checked){
+        $('#filter2').append(`
+        <select name="state">
+            {% for state in states %}
+                <option>{{state}}</option>
+            {% endfor %}
+        </select>
+        `)
+    }
+}
+</script>
 {% endblock %}

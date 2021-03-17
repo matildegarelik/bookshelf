@@ -4,11 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import relationship
 from flask_migrate import Migrate
+import json
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 app = Flask(__name__)
 app.secret_key = "12345678" 
-app.permanent_session_lifetime = timedelta(minutes=5)
+app.permanent_session_lifetime = timedelta(hours=5)
 
 PSQL_USER = 'postgres'
 PSQL_PASSWORD = 'matilde'
@@ -38,7 +40,17 @@ class User(db.Model, SerializerMixin):
         self.last_name = last_name
         self.username = username
         self.email = email
-        self.password = password 
+        self.password = password
+    
+    @property
+    def serialize(self):
+        return {
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'username': self.username,
+            'email': self.email,
+            'password': self.password
+        }
 
 
 class Book(db.Model, SerializerMixin):
@@ -57,6 +69,17 @@ class Book(db.Model, SerializerMixin):
         self.state = state
         self.category = category
         self.user_id = user_id
+    
+    @property
+    def serialize(self):
+        return {
+            'gb_id': self.gb_id,
+            'ii_type': self.ii_type,
+            'ii_value': self.ii_value,
+            'state': self.state,
+            'category': self.category,
+            'user_id': self.user_id
+        }
 
 
 @app.route('/')
@@ -96,11 +119,24 @@ def book(book_id):
 def user():
     return render_template("user.html", user=User.query.filter_by(username=session["user"]).first())
 
-@app.route('/bookshelf')
+@app.route('/bookshelf', methods=['POST', 'GET'])
 def bookshelf():
+    if request.method == 'POST':
+        gb_id = request.form["gb_id"]
+        book = Book.query.filter_by(gb_id=gb_id).first()
+        if request.form["edit"] == "DELETE":
+            db.session.delete(book)
+            db.session.commit()
+        else:
+            category = request.form["category"]
+            state = request.form["state"]
+            book.category = category
+            book.state = state
+            db.session.commit()
+            
     user = User.query.filter_by(username=session["user"]).first()._id
-    user_books = Book.query.filter_by(user_id=user)
-    print(user_books)
+    user_books = Book.query.filter_by(user_id=user).all()
+    json_list = [i.serialize for i in user_books]
 
     categories = []
     states= []
@@ -109,8 +145,8 @@ def bookshelf():
             categories.append(book.category)
         if not book.state in states:
             states.append(book.state)
-
-    return render_template("bookshelf.html", user=session["user"], user_books=user_books, categories=categories, states= states)
+ 
+    return render_template("bookshelf.html", user=session["user"], user_books=json_list, categories=categories, states= states)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():

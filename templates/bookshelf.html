@@ -4,23 +4,33 @@
 {% block content %}
 <h1>BOOKSHELF OF {{user}}</h1>
 
-<form>
-    <label for="filter_by">Filter by: </label>
-    <div class="row" id="filter1">
-        <input type="checkbox" class="checkbox col-md-1" id="filter_category" name="filters[]" value="category">
-        <label for="filter_category" >Category</label>
+<form class="form-inline">
+    <div class="form-group">
+        <label for="category">Category</label>
+        <select class="form-control" id="category" onchange="view_books();">
+            <option value="all" selected>All</option>
+            {% for c in categories %}
+                <option>{{c}}</option>
+            {% endfor %}
+        </select>
     </div>
-    <div class="row" id="filter2">
-        <input type="checkbox" class="checkbox col-md-1" id="filter_state" name="filters[]" value="state">
-        <label for="filter_state">State</label>
+    <div class="form-group">
+        <label for="state">State</label>
+        <select class="form-control" id="state" onchange="view_books();">
+            <option value="all" selected>All</option>
+            {% for s in states %}
+                <option>{{s}}</option>
+            {% endfor %}
+        </select>
     </div>
 </form>
-
-<ul>
-    {% for book in user_books %}
-    <li>Google Books ID: {{book.gb_id}}. Category: {{book.category}}. State: {{book.state}}.</li>
-    {% endfor %}
-</ul>
+<br>
+<div class="container">
+    <ul id="books">
+        
+    </ul>
+    
+</div>
 
 
 
@@ -28,32 +38,64 @@
 
 {% block more_script %}
 <script>
-$(document).ready(filter_user_books)
-$('input.checkbox').change(function(){
-    if ($('#filter_category').checked){
-        console.log("hello")}
-})
+    var user_books = {{ user_books | tojson | safe }}
+    console.log(user_books);
 
-function filter_user_books(){
-    if ($('#filter_category').checked){
-        console.log("hello")
-        $('#filter1').append(`
-        <select name="category">
-            {% for category in categories %}
-                <option>{{category}}</option>
-            {% endfor %}
-        </select>
-        `)
+    function view_books(){
+        var category_filter = $('#category').val();
+        var state_filter = $('#state').val();
+        var books = user_books;
+        var output = "";
+        var filtered_books = books;
+
+        console.log(books)
+
+        if(category_filter!="all"){
+            filtered_books = filtered_books.filter( m => m.category == category_filter)
+        }
+
+        if(state_filter!="all"){
+            filtered_books = filtered_books.filter( m => m.state == state_filter)
+        }
+
+        console.log(filtered_books);
+
+        for(book in filtered_books){
+            var b = filtered_books[book]
+            output +=`
+                <li>${b.ii_type}: ${b.ii_value} <button onclick=bookSelected("${b.gb_id}")>See more</button> <button onclick="togglePopUp('${b.gb_id}')"">Edit</button></li>
+                <div class="container">
+                    <div class="popup" id="popup-${b.gb_id}">
+                        <div class="overlay"></div>
+                        <div class="content">
+                            <div class="close-btn" onclick="togglePopUp('${b.gb_id}')">&times;</div>
+                            <h1>Edit books</h1>
+                            <form method="POST">
+                                <label>Google books ID: </label>
+                                <input name="gb_id" value="${b.gb_id}" readonly><br>
+                                <label>Category: </label>
+                                <input type="text" required name="category" value='${b.category}'><br>
+                                <label>State: </label>
+                                <input type="text" value='${b.state}' name="state" required><br>
+                                <input type="submit" class="btn btn-success" name="edit" value="EDIT">
+                                <span> or </span>
+                                <input type="submit" class="btn btn-danger" name="edit" value="DELETE">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `            
+        }
+
+        $('ul#books').html(output);
     }
-    if ($('#filter_state').checked){
-        $('#filter2').append(`
-        <select name="state">
-            {% for state in states %}
-                <option>{{state}}</option>
-            {% endfor %}
-        </select>
-        `)
+
+    function togglePopUp(gb_id){
+        document.getElementById(`popup-${gb_id}`).classList.toggle("active");
     }
-}
+
+    document.addEventListener('DOMContentLoaded', view_books())
+
+
 </script>
 {% endblock %}

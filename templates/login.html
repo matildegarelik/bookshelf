@@ -1,13 +1,54 @@
-{% extends "layout.html" %}
-{% block content %}
-<h1>Log in</h1>
+{% extends "layout2.html" %}
 
-<form method="POST">
-    <label for="username">Username</label><br>
-    <input type="text" id="username" name="nm" required><br><br>
-    <label for="password">Password</label><br>
-    <input type="password" id="password" name="pw" required><br><br>
-    <input type="submit" value="submit">
-</form>
-<p>Return to <a href="/">index</a></p>
+{% block more_style %}
+<style>
+    #form-container{
+        width: 700px;
+        background-color: rgb(240, 247, 247);
+        padding: 10px;
+        box-shadow: inset 0 -3em 3em rgba(0,0,0,0.1),
+            0 0  0 2px rgb(255,255,255),
+            0.3em 0.3em 1em rgba(0,0,0,0.3);
+    }
+    @media (max-width: 767px){
+        #form-container{
+            width: 510px;
+        }
+    }
+    @media (max-width: 577px){
+        #form-container{
+            width: 90vw;
+        } 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1>Log in to your account</h1>
+    <hr>
+    <br>
+</div>
+
+
+<div class="container" id="form-container">
+    <form method="POST">
+        <div class="form-group">
+            <label for="username" class="form-label">Username</label><br>
+            <input class="form-control" type="text" id="username" name="nm" required><br><br>
+        </div>
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label><br>
+            <input class="form-control" type="password" id="password" name="pw" required><br><br>
+        </div>
+        
+        <input class="btn btn-primary mb-3" type="submit" value="Submit">
+    </form>
+</div>
+<hr><br>
+<div class="container text-right">
+    <a href="/" class="btn btn-primary">Go back</a>
+</div>
+
+
 {% endblock %}

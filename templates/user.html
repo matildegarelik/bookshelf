@@ -4,3 +4,9 @@
 <h1>Welcome, {{user.first_name}} {{user.last_name}}</h1>
 
 {% endblock %}
+
+{% block more_script %}
+<script>
+    $("a#home_link").addClass("active")
+</script>
+{% endblock %}

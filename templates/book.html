@@ -11,7 +11,8 @@
 {% block more_script %}
 
 <script>
-    //getBook();
+    $("li#search_link").addClass("active");
+    
     var in_bookshelf = '{{in_bf}}';
     console.log(in_bookshelf);
     let bookId = sessionStorage.getItem('bookId');

@@ -38,6 +38,8 @@
 
 {% block more_script %}
 <script>
+    $("a#bookshelf_link").addClass("active");
+
     var user_books = {{ user_books | tojson | safe }}
     console.log(user_books);
 

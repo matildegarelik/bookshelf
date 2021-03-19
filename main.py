@@ -84,10 +84,10 @@ class Book(db.Model, SerializerMixin):
 
 @app.route('/')
 def home():
-    session_status = "inactive"
     if session.get("user"):
-        session_status = "active"
-    return render_template("index.html", session=session_status)
+        return render_template("user.html", user=User.query.filter_by(username=session["user"]).first())    
+    else:
+        return render_template("index.html")
 
 @app.route('/search')
 def search():
@@ -115,9 +115,6 @@ def book(book_id):
         return render_template("book.html", in_bf=in_bf, times_saved= times_saved)
     return render_template("book.html", in_bf=in_bf, times_saved=times_saved)
 
-@app.route('/user')
-def user():
-    return render_template("user.html", user=User.query.filter_by(username=session["user"]).first())
 
 @app.route('/bookshelf', methods=['POST', 'GET'])
 def bookshelf():
@@ -161,7 +158,7 @@ def login():
             if found_user.password == password:
                 session["user"] = username
                 flash('Login successfull!')
-                return redirect(url_for("user"))
+                return redirect(url_for("home"))
             else:
                 flash('Incorrect password')
                 return render_template("login.html")
@@ -172,7 +169,7 @@ def login():
     else:
         if "user" in session:
             flash('Already logged in')
-            return redirect(url_for("user"))
+            return redirect(url_for("home"))
         return render_template('login.html')
 
 @app.route('/signup', methods=['POST', 'GET'])
@@ -194,7 +191,7 @@ def signup():
             db.session.commit()
             session["user"] = username
             flash("New account created successfully!")
-            return redirect(url_for("user"))
+            return redirect(url_for("home"))
         
     else:
         return render_template("signup.html")

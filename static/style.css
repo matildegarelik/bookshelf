@@ -2,8 +2,57 @@ button .btn-primary{
     color:red;
 }
 html, body{
-    margin: 20px;
-    padding: 15px;
+  background: #CBD0D6;
+}
+.box{
+  padding: 10px;
+  margin:10px;
+  background: #222;
+  height: 400px;
+  box-shadow: inset 0 -3em 3em rgba(0,0,0,0.1),
+            0 0  0 2px #222,
+            0.3em 0.3em 1em rgba(0,0,0,0.3);
+}
+.well{
+  height: 320px;
+  margin: 10px;
+  padding: 10px;
+  color: whitesmoke;
+  
+}
+.book-title{
+  margin-top:10px;
+  height: 50px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: auto;
+}
+.book-author{
+  height:40px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.select {
+  position: relative;
+  margin-bottom: 10px;
+  height: 50px;
+  text-align: center;
+}
+
+.jumbotron{
+  border: solid;
+  background-color: #222;
+  padding: 20px;
+  margin:15px;
+  box-shadow: inset 0 -3em 3em rgba(0,0,0,0.1),
+            0 0  0 2px #222,
+            0.3em 0.3em 1em rgba(0,0,0,0.3);
+  height: 200px;
+}
+#search-title{
+  color: white;
 }
 
 .popup .overlay {
@@ -56,3 +105,40 @@ html, body{
     transition:all 300ms ease-in-out;
     transform:translate(-50%,-50%) scale(1);
   }
+
+.book-cover{
+  width: 100%;
+  padding: 15px;
+  }
+.book-description{
+  background: whitesmoke;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.title{
+  padding: 10px;
+  margin-top:15px;
+  margin-bottom: 15px;
+  text-align: center;
+  background: whitesmoke;
+}
+
+.form{
+  width: 700px;
+  background: #222;
+  padding: 10px;
+  box-shadow: inset 0 -3em 3em rgba(0,0,0,0.1),
+      0 0  0 2px rgb(255,255,255),
+      0.3em 0.3em 1em rgba(0,0,0,0.3);
+  color: whitesmoke;
+}
+@media (max-width: 767px){
+  .form{
+      width: 510px;
+  }
+}
+@media (max-width: 577px){
+  .form{
+      width: 90vw;
+  } 
+}

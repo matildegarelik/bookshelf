@@ -15,21 +15,24 @@ function getBooks(searchText){
             console.log(response.items);
             let books= response.items;
             let output = `<div class="row">`;
+            let m = 0;
             $.each(books, (index, book) => {
             //while (i < 11){
-                output+= `<div class="col-md-3"><div class="well text-center">`
+                m++;
+                output+= `<div class="col-md-3"><div class="box"><div class="well text-center">`
                 if (book.volumeInfo.imageLinks){
-                    output+= `<img src="${book.volumeInfo.imageLinks.thumbnail}">`
+                    output+= `<img src="${book.volumeInfo.imageLinks.thumbnail}" width="128px" height="206px">`
                 }else{
                     output+= `<img src="https://www.walterbrueggemann.com/wp-content/uploads/1971/01/Book-Cover-Unavailable.png" width="128px" height="206px">`
                 }
-                output+= `<h5>${book.volumeInfo.title}</h5><p>Autor(es): `
+                output+= `<div class="book-title"><h5>${book.volumeInfo.title}</h5></div><div class="book-author"<p>Autor(es): `
                 if (book.volumeInfo.authors){
                     output+= `${book.volumeInfo.authors}`
                 }
-                output+=`</p><button onclick=bookSelected("${book.id}")>Select</button></div></div>`;
+                output+=`</p></div></div><div class="select"><button class="btn btn-info" onclick=bookSelected("${book.id}")>Select</button></div></div></div>
+                ${m % 4 == 0 ? `</div><div class="row">`:``}`
             });
-            output += `</div><br><div id="btn-more" style="text-align: center;"><button class="btn btn-primary" onclick="loadMore()">Load more</button></div><br>`
+            output += `</div><br><div id="btn-more" style="text-align: center;"><button class="btn btn-info" onclick="loadMore()">Load more</button></div><br>`
             $('#books').html(output);
         })
         .catch((err) => {
@@ -46,23 +49,25 @@ function loadMore(){
         .then((response) => {
             console.log(response.items);
             let books= response.items;
+            let m = 0;
             let output = `<div id="load_${start_index}" class="row">`;
             $.each(books, (index, book) => {
-            //while (i < 11){
-                output+= `<div class="col-md-3"><div class="well text-center">`
+                m++;
+                output+= `<div class="col-md-3"><div class="box"><div class="well text-center">`
                 if (book.volumeInfo.imageLinks){
-                    output+= `<img src="${book.volumeInfo.imageLinks.thumbnail}">`
+                    output+= `<img src="${book.volumeInfo.imageLinks.thumbnail}" width="128px" height="206px">`
                 }else{
                     output+= `<img src="https://www.walterbrueggemann.com/wp-content/uploads/1971/01/Book-Cover-Unavailable.png" width="128px" height="206px">`
                 }
-                output+= `<h5>${book.volumeInfo.title}</h5><p>Autor(es): `
+                output+= `<div class="book-title"><h5>${book.volumeInfo.title}</h5></div><div class="book-author"<p>Autor(es): `
                 if (book.volumeInfo.authors){
                     output+= `${book.volumeInfo.authors}`
                 }
-                output+=`</p><button onclick=bookSelected("${book.id}")>Select</button></div></div>`;
+                output+=`</p></div></div><div class="select"><button class="btn btn-info" onclick=bookSelected("${book.id}")>Select</button></div></div></div>
+                ${m % 4 == 0 ? `</div><div class="row">`:``}`
             });
             $('#btn-more').remove();
-            output += `</div><br><div id="btn-more" style="text-align: center;"><button class="btn btn-primary" onclick="loadMore()">Load more</button></div><br>`
+            output += `</div><br><div id="btn-more" style="text-align: center;"><button class="btn btn-info" onclick="loadMore()">Load more</button></div><br>`
             $('#books').append(output);
             $('html, body').animate({scrollTop: $(`#load_${start_index}`).offset().top}, 1000);
         })

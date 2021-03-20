@@ -11,7 +11,7 @@
 {% block more_script %}
 
 <script>
-    $("li#search_link").addClass("active");
+    $("a#search_link").addClass("active");
     
     var in_bookshelf = '{{in_bf}}';
     console.log(in_bookshelf);
@@ -21,37 +21,37 @@
             console.log(response);
             let book= response.data;
             console.log(book);
-            let output =`<div class="row"><div class="col-md-4">`;
+            let output =`<h2 class="title">${book.volumeInfo.title}</h2>
+                    <div class="row"><div class="col-md-4">`;
             if (book.volumeInfo.imageLinks){
-                output+=`<img src="${book.volumeInfo.imageLinks.thumbnail}">`;
+                output+=`<img src="${book.volumeInfo.imageLinks.thumbnail}" class="book-cover">`;
             }else{
-                output+=`<img src="https://www.walterbrueggemann.com/wp-content/uploads/1971/01/Book-Cover-Unavailable.png" width="256px" height="412px">`;
+                output+=`<img class="book-cover" src="https://www.walterbrueggemann.com/wp-content/uploads/1971/01/Book-Cover-Unavailable.png">`;
             }
-            output+=`</div>
+            output+=`<div class="row text-center"><div class="col-md-6"><span class="btn btn-danger disabled" style="cursor: default;">{{times_saved}} Users saved this book</span></div>
+                    <div class="col-md-6"><a href="https://books.google.com.ar/books/?id=${bookId}" target="_blank" class="btn btn-primary">View in Google Books</a></div></div><br>
+                    <div class="row text-center"><div class="col-md-6">
+                    
+                    ${in_bookshelf == "SI" ? 
+                        `<button class="btn btn-success" disabled>&check; Already in my bookshelf</button></div>`: 
+                        `<button class="btn btn-info" onclick="togglePopUp()">Add to my bookshelf</button></div>`}
+                    <div class="col-md-6"><a href="search" class="btn btn-secondary">Go Back To Search</a></div></div></div>
                 <div class="col-md-8">
-                    <h2>${book.volumeInfo.title}</h2>
-                    <h3>${book.volumeInfo.subtitle}</h3>
+                    ${book.volumeInfo.subtitle ? `<h3>${book.volumeInfo.subtitle}</h3>`:``}
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Authors:</strong> ${book.volumeInfo.authors}</li>
                         <li class="list-group-item"><strong>Published date:</strong>${book.volumeInfo.publishedDate}</li>
                         <li class="list-group-item"><strong>Publisher:</strong> ${book.volumeInfo.publisher}</li>
                         <li class="list-group-item"><strong>Language:</strong> ${book.volumeInfo.language}</li>
                         <li class="list-group-item"><strong>Pages (printed):</strong> ${book.volumeInfo.printedPageCount}</li>
-                    </ul>
-                </div></div>
-                <div class="row">
-                    <div class="well">
-                        <h3>Description</h3>
-                        ${book.volumeInfo.description}
-                        <hr>
-                        <span class="btn btn-danger disabled" style="cursor: default;">{{times_saved}} Users saved this book</span>
-                        <a href="https://books.google.com.ar/books/?id=${bookId}" target="_blank" class="btn btn-primary">View in Google Books</a>
-                        <a href="search" class="btn btn-secondary">Go Back To Search</a><br><br>
-                        ${in_bookshelf == "SI" ? 
-                            `<button class="btn btn-success" disabled>&check; Already in my bookshelf</button>`: 
-                            `<button class="btn btn-info" onclick="togglePopUp()">Add to my bookshelf</button>`}
+                    </ul><br>
+                    <div class="book-description">
+                    <p><strong>Description: </strong></p><hr>
+                    <p>${book.volumeInfo.description}</p>
                     </div>
-                </div>`;
+                    
+                </div></div>
+               `;
                 /*if (in_bookshelf=="SI"){
                     output +=`<button class="btn btn-success" disabled>&check; Already in my bookshelf</button>`;
                 }else{
@@ -61,20 +61,29 @@
                 <div class="container">
                     <div class="popup" id="popup-1">
                         <div class="overlay"></div>
-                        <div class="content">
+                        <div class="content  form" style="background: #222;">
                             <div class="close-btn" onclick="togglePopUp()">&times;</div>
                             <h1>Add to personal boookshelf</h1>
-                            <form method="POST">
-                                <label>Google books ID: </label>
-                                <input value="${book.id}" name="gb_id" readonly><br>
-                                <label>Industry Identifier Type: </label>
-                                <input value="${book.volumeInfo.industryIdentifiers[0].type}" name="iit" readonly><br>
-                                <label>Industry Identifier's Value: </label>
-                                <input value="${book.volumeInfo.industryIdentifiers[0].identifier}" name="iiv" readonly><br>
-                                <label>Category: </label>
-                                <input type="text" required name="category"><br>
-                                <label>State: </label>
-                                <input type="text" value="Unread" name="state" required><br>
+                            <form method="POST" class="form-inline">
+                                <div class="form-group">
+                                    <label class="form-label">Google books ID: </label>
+                                    <input class="form-control" value="${book.id}" name="gb_id" readonly><br>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Industry Identifier Type: </label>
+                                    <input class="form-control" value="${book.volumeInfo.industryIdentifiers[0].type}" name="iit" readonly><br>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Industry Identifier's Value: </label>
+                                    <input class="form-control" value="${book.volumeInfo.industryIdentifiers[0].identifier}" name="iiv" readonly><br>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Category: </label>
+                                    <input class="form-control" type="text" required name="category"><br>
+                                <div class="form-group">
+                                    <label class="form-label">State: </label>
+                                    <input class="form-control" type="text" value="Unread" name="state" required><br>
+                                </div>
                                 <input type="submit" class="btn btn-success"  value="ADD">
                             </form>
                         </div>

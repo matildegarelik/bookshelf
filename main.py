@@ -97,12 +97,6 @@ def search():
 def book(book_id):
     user = User.query.filter_by(username=session["user"]).first()._id
 
-    in_bf = "NO" #Check if the book is in the users bookshelf
-    if Book.query.filter_by(user_id=user, gb_id=book_id).count() > 0:
-        in_bf = "SI"
-    
-    times_saved = Book.query.filter_by(gb_id=book_id).count()
-
     if request.method == "POST":
         new_book = Book(gb_id=request.form["gb_id"], 
             ii_type= request.form["iit"], 
@@ -112,7 +106,13 @@ def book(book_id):
             user_id=user)
         db.session.add(new_book)
         db.session.commit()
-        return render_template("book.html", in_bf=in_bf, times_saved= times_saved)
+        #return redirect(url_for("bookshelf"))
+        
+    in_bf = "NO" #Check if the book is in the users bookshelf
+    if Book.query.filter_by(user_id=user, gb_id=book_id).count() > 0:
+        in_bf = "SI"
+    times_saved = Book.query.filter_by(gb_id=book_id).count()  
+
     return render_template("book.html", in_bf=in_bf, times_saved=times_saved)
 
 

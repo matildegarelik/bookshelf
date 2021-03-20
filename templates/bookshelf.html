@@ -2,33 +2,37 @@
 
 
 {% block content %}
-<h1>BOOKSHELF OF {{user}}</h1>
-
-<form class="form-inline">
-    <div class="form-group">
-        <label for="category">Category</label>
-        <select class="form-control" id="category" onchange="view_books();">
-            <option value="all" selected>All</option>
-            {% for c in categories %}
-                <option>{{c}}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="state">State</label>
-        <select class="form-control" id="state" onchange="view_books();">
-            <option value="all" selected>All</option>
-            {% for s in states %}
-                <option>{{s}}</option>
-            {% endfor %}
-        </select>
-    </div>
-</form>
-<br>
+<div class="container text-center">
+    <h1>Personal bookshelf</h1>
+</div>
 <div class="container">
-    <ul id="books">
-        
-    </ul>
+    <form class="row gx-3 gy-2 align-items-center">
+        <div class="row mb-3">
+            <label for="category" class="col-auto">Category</label>
+            <div class="col-auto">
+                <select class="form-select-sm" id="category" onchange="view_books();">
+                    <option value="all" selected>All</option>
+                    {% for c in categories %}
+                        <option>{{c}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <label for="state" class="col-auto">State</label>
+            <div class="col-auto">
+                <select class="form-select-sm" id="state" onchange="view_books();">
+                    <option value="all" selected>All</option>
+                    {% for s in states %}
+                        <option>{{s}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+
+<br>
+<div class="container" id="books">
+    
     
 </div>
 
@@ -43,14 +47,16 @@
     var user_books = {{ user_books | tojson | safe }}
     console.log(user_books);
 
+
     function view_books(){
         var category_filter = $('#category').val();
         var state_filter = $('#state').val();
         var books = user_books;
-        var output = "";
         var filtered_books = books;
+        let output = `<div class="row">`;
+        let m = 0;
 
-        console.log(books)
+        $('#books').html(``);
 
         if(category_filter!="all"){
             filtered_books = filtered_books.filter( m => m.category == category_filter)
@@ -59,37 +65,65 @@
         if(state_filter!="all"){
             filtered_books = filtered_books.filter( m => m.state == state_filter)
         }
-
+        
         console.log(filtered_books);
-
+        
         for(book in filtered_books){
-            var b = filtered_books[book]
-            output +=`
-                <li>${b.ii_type}: ${b.ii_value} <button onclick=bookSelected("${b.gb_id}")>See more</button> <button onclick="togglePopUp('${b.gb_id}')"">Edit</button></li>
-                <div class="container">
-                    <div class="popup" id="popup-${b.gb_id}">
-                        <div class="overlay"></div>
-                        <div class="content">
-                            <div class="close-btn" onclick="togglePopUp('${b.gb_id}')">&times;</div>
-                            <h1>Edit books</h1>
-                            <form method="POST">
-                                <label>Google books ID: </label>
-                                <input name="gb_id" value="${b.gb_id}" readonly><br>
-                                <label>Category: </label>
-                                <input type="text" required name="category" value='${b.category}'><br>
-                                <label>State: </label>
-                                <input type="text" value='${b.state}' name="state" required><br>
-                                <input type="submit" class="btn btn-success" name="edit" value="EDIT">
-                                <span> or </span>
-                                <input type="submit" class="btn btn-danger" name="edit" value="DELETE">
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            `            
+            var b = filtered_books[book];
+            
+
+            axios.get('https://www.googleapis.com/books/v1/volumes/'+b.gb_id)
+                .then((response) => {
+                    data = response;
+                    console.log(data.data)
+                    output +=`<div class="col-md-3"><div class="box"><div class="well text-center">
+                        ${data.data.volumeInfo.imageLinks ? `<img src="${data.data.volumeInfo.imageLinks.thumbnail}" width="128px" height="206px">`:`<img src="https://www.walterbrueggemann.com/wp-content/uploads/1971/01/Book-Cover-Unavailable.png" width="128px" height="206px">`}
+                        <div class="book-title"><h5>${data.data.volumeInfo.title}</h5></div><div class="book-author"<p>Autor(es): 
+                        ${data.data.volumeInfo.authors ? `${data.data.volumeInfo.authors}`:``}
+                        </p></div></div><div class="select"><button class="btn btn-info" onclick=bookSelected("${b.gb_id}")><strong>See more</strong></button>  <button class="btn btn-warning" onclick="togglePopUp('${b.gb_id}')""><strong>Edit</strong></button></div></div>`
+                    output += `
+                        <div class="container">
+                            <div class="popup" id="popup-${b.gb_id}">
+                                <div class="overlay"></div>
+                                <div class="content form" style="background: #000;">
+                                    <div class="close-btn" onclick="togglePopUp('${b.gb_id}')">&times;</div>
+                                    <h1>Edit book</h1>
+                                    <form method="POST">
+                                        <div class="form-group">
+                                            <label class="form-label">Google books ID: </label>
+                                            <input class="form-control" value="${b.gb_id}" name="gb_id" style="background-color: grey;" readonly><br>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Category: </label>
+                                            <input class="form-control" type="text" required name="category" value='${b.category}'><br>
+                                        <div class="form-group">
+                                            <label class="form-label">State: </label>
+                                            <input class="form-control" type="text" value='${b.state}' name="state" required><br>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="submit" class="btn btn-success" name="edit" value="EDIT">
+                                            <span> or </span>
+                                            <input type="submit" class="btn btn-danger" name="edit" value="DELETE">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div></div></div>`
+                        m++;
+                        if (m % 4 == 0){
+                            output += `</div><div class="row">`
+                        };
+
+                    $('div#books').html(output);
+
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+            
+
         }
 
-        $('ul#books').html(output);
     }
 
     function togglePopUp(gb_id){

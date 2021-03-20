@@ -1,8 +1,8 @@
 {% extends "layout2.html" %}
 {% block content %}
 <div class="container text-center">
+    <br>
     <h1>Sign up</h1>
-    <hr>
     <br>
 </div>
 <div class="container form">
@@ -27,11 +27,13 @@
             <label class="form-label" for="password">Password</label><br>
             <input class="form-control" type="password" id="password" name="pw" required><br><br>
         </div>
-        <input type="submit" class="btn btn-primary" value="Submit">
+        <div class="text-center">
+            <input type="submit" class="btn btn-success mb-3" value="Signup">
+        </div>
     </form>
 </div>
 <br>
-<div class="d-flex flex-row-reverse">
+<div class="d-flex flex-row-reverse container">
     <a href="/" class="btn btn-primary">Go back</a>
 </div>
 {% endblock %}

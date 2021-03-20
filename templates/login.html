@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="container text-center">
+    <br>
     <h1>Log in to your account</h1>
-    <hr>
     <br>
 </div>
 
@@ -18,12 +18,14 @@
             <label for="password" class="form-label">Password</label><br>
             <input class="form-control" type="password" id="password" name="pw" required><br><br>
         </div>
+        <div class="text-center">
+            <input class="btn btn-success mb-3" type="submit" value="Login">
+        </div>
         
-        <input class="btn btn-primary mb-3" type="submit" value="Submit">
     </form>
 </div>
 <br>
-<div class="d-flex flex-row-reverse">
+<div class="d-flex flex-row-reverse container">
     <a href="/" class="btn btn-primary">Go back</a>
 </div>
 
